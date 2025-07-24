@@ -14,8 +14,8 @@ export interface ClickManagerInterface {
   lastClickedPosition: { x: number; y: number };
   activeButton: any;
   buttons: {
-    stanceButton: MapleStanceButton[];
-    frameButton: MapleFrameButton[];
+    stanceButton: Set<MapleStanceButton>;
+    frameButton: Set<MapleFrameButton>;
   };
   dragableMenus: any[];
   GameCanvas: GameCanvas;
@@ -37,8 +37,8 @@ ClickManager.initialize = function (canvas: GameCanvas) {
   this.lastClickedPosition = { x: 0, y: 0 };
   this.activeButton = null;
   this.buttons = {
-    stanceButton: [],
-    frameButton: [],
+    stanceButton: new Set<MapleStanceButton>(),
+    frameButton: new Set<MapleFrameButton>(),
   };
   this.dragableMenus = [];
   this.GameCanvas = canvas;
@@ -52,8 +52,8 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
   const releasedClick = clickedOnLastUpdate && !clickedOnThisUpdate;
   const lastActiveButton = this.activeButton;
   const buttons: MapleButton[] = [
-    ...this.buttons.stanceButton,
-    ...this.buttons.frameButton,
+    ...Array.from(this.buttons.stanceButton.values()),
+    ...Array.from(this.buttons.frameButton.values()),
   ].filter((button) => !button.isHidden);
   let currActiveButton = null;
 
@@ -98,7 +98,7 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
         }
       }
     }
-    
+
     if (this.activeButton === button) {
       const originallyClickedButton = GUIUtil.pointInRectangle(
         this.lastClickedPosition,
@@ -214,11 +214,11 @@ ClickManager.addDragableMenu = function (menu) {
 ClickManager.addButton = function (button) {
   switch (button.constructor) {
     case MapleStanceButton: {
-      this.buttons.stanceButton.push(button);
+      this.buttons.stanceButton.add(button);
       break;
     }
     case MapleFrameButton: {
-      this.buttons.frameButton.push(button);
+      this.buttons.frameButton.add(button);
       break;
     }
     default: {
@@ -226,25 +226,29 @@ ClickManager.addButton = function (button) {
     }
   }
   if (button.isPartOfUI) {
-    UIMap.clickManagerObjects.push(button);
+    UIMap.clickManagerObjects.add(button);
   } else {
-    MapleMap.clickManagerObjects.push(button);
+    MapleMap.clickManagerObjects.add(button);
   }
 };
 
 ClickManager.removeButton = function (button) {
-  // todo: fix
-  // this.button.stanceButton = this.button.stanceButton.filter(
-  //   (currentButton) => !(currentButton !== button)
-  // );
-  // this.button.frameButton = this.button.frameButton.filter(
-  //   (currentButton) => !(currentButton !== button)
-  // );
+  if (button instanceof MapleStanceButton) {
+    this.buttons.stanceButton.delete(button);
+  } else if (button instanceof MapleFrameButton) {
+    this.buttons.frameButton.delete(button);
+  }
+
+  if (button.isPartOfUI) {
+    UIMap.clickManagerObjects.delete(button);
+  } else {
+    MapleMap.clickManagerObjects.delete(button);
+  }
 };
 
 ClickManager.clearButton = function () {
-  this.buttons.stanceButton = [];
-  this.buttons.frameButton = [];
+  this.buttons.stanceButton.clear();
+  this.buttons.frameButton.clear();
 };
 
 export default ClickManager;

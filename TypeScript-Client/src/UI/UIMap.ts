@@ -19,7 +19,7 @@ export interface UIMapInterface {
   graduation: any;
   barGray: any;
   statusBarNode: any;
-  clickManagerObjects: any[];
+  clickManagerObjects: Set<any>;
   numbers: any;
   initialize: () => Promise<void>;
   addButtons: (canvas: GameCanvas) => void;
@@ -66,7 +66,7 @@ UIMap.initialize = async function () {
 
   this.statusBarNode = statusBar;
 
-  this.clickManagerObjects = [];
+  this.clickManagerObjects = new Set<any>();
 
   this.numbers = statusBar.number.nChildren.reduce(
     (numbers: any, node: any) => {

@@ -14,6 +14,7 @@ import Timer from "./Timer";
 import MapleCharacter from "./MapleCharacter";
 import DropItemSprite from "./DropItem/DropItemSprite";
 import GameCanvas from "./GameCanvas";
+import UINpcTalk from './UI/UINpcTalk';
 
 export interface MapleMap {
   id: number | string;
@@ -28,9 +29,10 @@ export interface MapleMap {
   portals: any;
   names: any;
   npcs: any;
+  npcDialog: UINpcTalk;
   monsters: any;
   itemDrops: any;
-  clickManagerObjects: any;
+  clickManagerObjects: Set<any>;
   PlayerCharacter: any;
   doneLoading: boolean;
   load: (id: number | string) => Promise<void>;
@@ -101,7 +103,7 @@ MapleMap.load = async function (id: number | string) {
   this.backgrounds = await this.loadBackgrounds(this.wzNode.back);
   this.tiles = await this.loadTiles(this.wzNode);
   this.objects = await this.loadObjects(this.wzNode);
-  this.clickManagerObjects = [];
+  this.clickManagerObjects = new Set<any>();
   this.portals = await this.loadPortals(this.wzNode.portal);
   this.names = await this.loadNames(id as number);
   await this.loadNPCs(this.wzNode.life);
@@ -118,6 +120,12 @@ MapleMap.load = async function (id: number | string) {
   }, minLoadTimeInSeconds * 500 - (endTime - startTime));
 
   this.itemDrops = [];
+
+  this.npcDialog = await UINpcTalk.fromOpts({
+    isHidden: true,
+    x: 300,
+    y: 200,
+  });
 };
 
 MapleMap.addItemDrop = function (itemDrop) {
@@ -457,6 +465,8 @@ MapleMap.render = function (
   });
 
   Object.values(this.footholds).forEach(draw);
+
+  this.npcDialog.draw(canvas, camera, lag, msPerTick, tdelta);
 };
 
 // --- New: Simple click handler for NPCs ---
@@ -471,8 +481,8 @@ MapleMap.handleClick = function (
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
   console.log("Click detected at:", mouseX, mouseY);
-  
-  this.npcs.forEach((npc: any) => {
+
+  this.npcs.forEach(async (npc: any) => {
     if (!npc.pos) return;
     // Convert NPC's world position to canvas coordinates.
     const npcX = npc.pos.x - camera.x - 25;
@@ -486,6 +496,8 @@ MapleMap.handleClick = function (
       mouseY <= npcY + 70
     ) {
       console.log(`Clicked on NPC ${npc.id}:`, npc);
+      await this.npcDialog.changeText(npc.id, null, npc.strings.name, 'Hello');
+      this.npcDialog.setIsHidden(false);
     }
   });
 };
