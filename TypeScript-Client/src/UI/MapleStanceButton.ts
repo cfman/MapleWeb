@@ -16,7 +16,7 @@ class MapleStanceButton extends MapleButton {
   isPartOfUI: boolean;
   isHidden: boolean;
 
-  constructor(canvas: GameCanvas, opts: any) {
+  constructor(canvas: GameCanvas | null, opts: any) {
     super(opts);
     this.stance = opts.stance || BUTTON_STANCE.NORMAL;
     this.stances = this.img.reduce((stances: any, stance: any) => {
