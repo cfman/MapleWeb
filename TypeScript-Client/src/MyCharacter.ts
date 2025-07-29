@@ -42,9 +42,6 @@ declare global {
 }
 
 window.charecter = MyCharacter;
-setTimeout(() => {
-  MapleMap.PlayerCharacter = MyCharacter;
-}, 1000);
 
 // Attach beginner equipment.
 window.charecter.attachEquip(5, 1060002); // blue pants

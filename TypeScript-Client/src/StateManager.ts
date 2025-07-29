@@ -1,18 +1,12 @@
-// todo
-// import ClickManager from "./UI/ClickManager";
-
 import GameCanvas from "./GameCanvas";
-import LoginState from "./LoginState";
-import { MapState } from "./MapState";
 import ClickManager from "./UI/ClickManager";
+import UIState from './UIState';
 
 interface StateManager {
-  currentState: any; // Replace 'any' with the actual type of your state if possible
+  currentState?: UIState;
   transitioning: boolean;
   initialize: () => void;
-  // setState: (state: any, canvas: GameCanvas) => Promise<void>; // Replace 'any' with the actual type of your state if possible
-  setLoginState: (state: LoginState, canvas: GameCanvas) => Promise<void>;
-  setMapState: (state: MapState) => Promise<void>;
+  setState: (state: UIState, canvas?: GameCanvas) => Promise<void>;
   doUpdate: (msPerTick: number, camera: any, canvas: GameCanvas) => void; // Replace 'any' with the actual type of your camera if possible
   doRender: (
     canvas: GameCanvas,
@@ -32,32 +26,13 @@ const StateManager: StateManager = {
     this.transitioning = false;
   },
 
-  async setLoginState(state: LoginState, canvas: GameCanvas): Promise<void> {
+  async setState(state: UIState, canvas?: GameCanvas) {
     this.transitioning = true;
+    ClickManager.clearButton();
     await state.initialize(canvas);
     this.currentState = state;
     this.transitioning = false;
   },
-
-  async setMapState(state: MapState): Promise<void> {
-    this.transitioning = true;
-    await state.initialize();
-    this.currentState = state;
-    this.transitioning = false;
-  },
-
-  // async setState(state: MapState | LoginState, canvas: GameCanvas) {
-  //   this.transitioning = true;
-  //   // todo:
-  //   // ClickManager.clearButton();
-  //   if (state === LoginState) {
-  //     await state.initialize(canvas);
-  //   } else {
-  //     await state.initialize();
-  //   }
-  //   this.currentState = state;
-  //   this.transitioning = false;
-  // },
 
   doUpdate(msPerTick, camera, canvas) {
     if (!this.transitioning && this.currentState) {
