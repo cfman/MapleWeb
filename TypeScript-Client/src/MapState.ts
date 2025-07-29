@@ -1,5 +1,6 @@
 import MapleMap from "./MapleMap";
 import MyCharacter from "./MyCharacter";
+import UIState from './UIState';
 import Camera, { CameraInterface } from "./Camera";
 import { enterBrowserFullscreen } from "./Config";
 import GameCanvas from "./GameCanvas";
@@ -18,21 +19,8 @@ const defaultMap = 100000000; // henesys
 // const defaultMap = 104040000; // left of henesys
 // const defaultMap: number = 100040102; // elinia - monkey map
 
-export interface MapState {
-  initialize: (map?: number) => Promise<void>;
+export interface MapState extends UIState {
   changeMap: (map: number) => Promise<void>;
-  doUpdate: (
-    msPerTick: number,
-    camera: CameraInterface,
-    canvas: GameCanvas
-  ) => void;
-  doRender: (
-    canvas: GameCanvas,
-    camera: CameraInterface,
-    lag: number,
-    msPerTick: number,
-    tdelta: number
-  ) => void;
   isTouchControllsEnabled: boolean;
   joyStick: JoyStick;
   statsMenu: StatsMenuSprite;

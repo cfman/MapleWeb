@@ -52,8 +52,8 @@ UILogin.initialize = async function (canvas: GameCanvas) {
     x: 223,
     y: -85,
     img: uiLogin.Title.BtLogin.nChildren,
-    onClick: () => {
-      console.log("login!");
+    onClick: async () => {
+      await LoginState.switchToSubState(LoginSubState.WORLD_SELECT, canvas);
     },
   });
   ClickManager.addButton(loginButton);
