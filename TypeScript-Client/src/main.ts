@@ -7,7 +7,6 @@ import Camera from "./Camera";
 // import MySocket from "./mysocket";
 import StateManager from "./StateManager";
 import LoginState from "./LoginState";
-import MyCharacter from "./MyCharacter";
 import GameCanvas from "./GameCanvas";
 import ClickManager from "./UI/ClickManager";
 
@@ -33,8 +32,6 @@ const startGame = async () => {
   // await MySocket.initialize();
   await StateManager.setState(LoginState, canvas);
 
-  // when the next line commant it will be home screen
-  await LoginState.enterGame();
   let Loop = new GameLoop(canvas);
   Loop.gameLoop();
 };

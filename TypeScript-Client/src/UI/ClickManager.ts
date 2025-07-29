@@ -82,7 +82,9 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
         if (button.hoverAudio) {
           UICommon.playMouseHoverAudio();
         }
-        button.stance = BUTTON_STANCE.MOUSE_OVER;
+        if (typeof button.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined') {
+          button.stance = BUTTON_STANCE.MOUSE_OVER;
+        }
         break;
       }
     }
@@ -109,8 +111,8 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
           case MapleStanceButton: {
             const stanceButton = button as MapleStanceButton;
             stanceButton.stance = !originallyClickedButton
-              ? BUTTON_STANCE.MOUSE_OVER
-              : BUTTON_STANCE.PRESSED;
+              ? (typeof button.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined' ? BUTTON_STANCE.MOUSE_OVER : BUTTON_STANCE.NORMAL)
+              : (typeof button.stances[BUTTON_STANCE.PRESSED] !== 'undefined' ? BUTTON_STANCE.PRESSED : BUTTON_STANCE.NORMAL);
             break;
           }
           case MapleFrameButton: {
@@ -121,7 +123,9 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
         switch (button.constructor) {
           case MapleStanceButton: {
             const stanceButton = button as MapleStanceButton;
-            stanceButton.stance = BUTTON_STANCE.MOUSE_OVER;
+            if (typeof button.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined') {
+              stanceButton.stance = BUTTON_STANCE.MOUSE_OVER;
+            }
             const trigger = releasedClick && originallyClickedButton;
             if (trigger) {
               if (button.clickAudio) {

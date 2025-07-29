@@ -20,7 +20,11 @@ class MapleStanceButton extends MapleButton {
     super(opts);
     this.stance = opts.stance || BUTTON_STANCE.NORMAL;
     this.stances = this.img.reduce((stances: any, stance: any) => {
-      stances[stance.nName] = stance.nChildren[0];
+      if (stance.nChildren[0].nTagName === 'vector') {
+        stances[stance.nName] = stance.nChildren[0].nParent;
+      } else {
+        stances[stance.nName] = stance.nChildren[0];
+      }
       return stances;
     }, {});
     this.onUpdate = opts.onUpdate || function () {};
@@ -42,7 +46,7 @@ class MapleStanceButton extends MapleButton {
   ) {
     if (!this.isHidden) {
       const currentFrame = this.stances[this.stance];
-      const currentImage = currentFrame.nGetImage();
+      const currentImage = currentFrame?.nGetImage();
       if (this.isRelativeToCamera) {
         canvas.drawImage({
           img: currentImage,
