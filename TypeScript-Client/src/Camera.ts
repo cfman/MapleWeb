@@ -23,6 +23,7 @@ export interface CameraInterface {
   lookAt: (_: number, __: number) => void;
   update: () => void;
   doReset: () => void;
+  setTopLeft: (x: number, y: number) => void,
 }
 
 const Camera: CameraInterface = {
@@ -41,6 +42,7 @@ const Camera: CameraInterface = {
   lookAt: () => {},
   update: () => {},
   doReset: () => {},
+  setTopLeft: () => {},
 };
 
 Camera.initialize = function () {
@@ -48,7 +50,13 @@ Camera.initialize = function () {
   this.height = config.height;
   this.x = 0;
   this.y = 0;
+  targetX = 0;
+  targetY = 0;
 };
+
+const easeSpeed = 0.1;
+let targetX = 0;
+let targetY = 0;
 
 // only usefull when the game resolution is not 800x600
 // const bottomSafeGap = 0; // 800x600
@@ -67,6 +75,11 @@ Camera.setBoundaries = function ({
   this.boundaries = { left, right, top, bottom: bottom - bottomSafeGap };
 };
 
+Camera.setTopLeft = function (x: number, y: number): void {
+  targetX = x;
+  targetY = y;
+};
+
 Camera.lookAt = function (x, y) {
   const width = this.width;
   const height = this.height;
@@ -74,29 +87,44 @@ Camera.lookAt = function (x, y) {
 
   if (boundaries.right - boundaries.left < width) {
     const leftGap = (width - (boundaries.right - boundaries.left)) / 2;
-    this.x = Math.round(boundaries.left - leftGap);
+    targetX = Math.round(boundaries.left - leftGap);
   } else if (x - width / 2 < boundaries.left) {
-    this.x = boundaries.left;
+    targetX = boundaries.left;
   } else if (x + width / 2 > boundaries.right) {
-    this.x = boundaries.right - width;
+    targetX = boundaries.right - width;
   } else {
-    this.x = Math.round(x - width / 2);
+    targetX = Math.round(x - width / 2);
   }
 
   if (boundaries.bottom - boundaries.top < height) {
     const topGap = (height - (boundaries.bottom - boundaries.top)) / 2;
-    this.y = Math.round(boundaries.top - topGap);
+    targetY = Math.round(boundaries.top - topGap);
   } else if (y - height / 2 < boundaries.top) {
-    this.y = boundaries.top;
+    targetY = boundaries.top;
   } else if (y + height / 2 > boundaries.bottom) {
-    this.y = boundaries.bottom - height;
+    targetY = boundaries.bottom - height;
   } else {
-    this.y = Math.round(y - height / 2);
+    targetY = Math.round(y - height / 2);
   }
 };
 
-Camera.update = function () {};
+Camera.update = function () {
+  if (this.x === targetX && this.y === targetY) {
+    return;
+  }
 
-Camera.doReset = function () {};
+  this.x += (targetX - this.x) * easeSpeed;
+  this.y += (targetY - this.y) * easeSpeed;
+
+  if (Math.abs(this.x - targetX) < 0.5) this.x = targetX;
+  if (Math.abs(this.y - targetY) < 0.5) this.y = targetY;
+};
+
+Camera.doReset = function () {
+  this.x = 0;
+  this.y = 0;
+  targetX = 0;
+  targetY = 0;
+};
 
 export default Camera;

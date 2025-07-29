@@ -16,6 +16,7 @@ class GameLoop {
 
   doUpdate(msPerTick: number, camera: CameraInterface, canvas: GameCanvas) {
     StateManager.doUpdate(msPerTick, camera, canvas);
+    camera.update();
   }
 
   doRender(
