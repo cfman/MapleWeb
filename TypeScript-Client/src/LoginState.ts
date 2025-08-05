@@ -40,9 +40,29 @@ const LoginState: LoginState = {
   },
 
   async switchToSubState(subState: LoginSubState): Promise<void> {
+    const previousState = this.currentSubState;
+    this.currentSubState = subState;
+
     if (subState !== LoginSubState.LOGIN_SCREEN) {
       UILogin.removeInputs();
     }
+
+    if (subState === LoginSubState.WORLD_SELECT) {
+      UILogin.startSelectWorldChannelImgSlideIn();
+    }
+    if (previousState === LoginSubState.WORLD_SELECT) {
+      UILogin.startSelectWorldChannelImgFadeOut();
+    }
+
+    if (subState === LoginSubState.CHARACTER_SELECT) {
+      UILogin.startSelectCharacterImgSlideIn();
+      UILogin.startSelectedWorldSlideIn();
+    }
+    if (previousState === LoginSubState.CHARACTER_SELECT) {
+      UILogin.startSelectCharacterImgFadeOut();
+      UILogin.selectedWorldImageAnimation.active = false;
+    }
+
     const newPos = LOGIN_CAMERA_POSITIONS[subState];
     Camera.setTopLeft(newPos.x, newPos.y);
     Camera.update();
