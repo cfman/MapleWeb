@@ -42,7 +42,8 @@ class MapleStanceButton extends MapleButton {
     canvas: GameCanvas,
     camera: CameraInterface,
     lag: number,
-    msPerTick: number
+    msPerTick: number,
+    tdelta: number
   ) {
     if (!this.isHidden) {
       const currentFrame = this.stances[this.stance];

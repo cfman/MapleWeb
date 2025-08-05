@@ -388,6 +388,9 @@ class StatsMenuSprite extends DragableMenu {
         });
 
       this.drawText(canvas);
+      this.buttons.forEach((obj) => {
+        obj.draw(canvas, camera, lag, msPerTick, tdelta);
+      });
     }
   }
 }

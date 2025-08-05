@@ -3,8 +3,6 @@ import MapleFrameButton from "./MapleFrameButton";
 import UICommon from "./UICommon";
 import GUIUtil from "../GuiUtils";
 import GameCanvas from "../GameCanvas";
-import MapleMap from "../MapleMap";
-import UIMap from "./UIMap";
 import MapleButton from "./MapleButton";
 import DragableMenu from "./Menu/DragableMenu";
 import { CameraInterface } from "../Camera";
@@ -13,10 +11,7 @@ export interface ClickManagerInterface {
   clicked: boolean;
   lastClickedPosition: { x: number; y: number };
   activeButton: any;
-  buttons: {
-    stanceButton: Set<MapleStanceButton>;
-    frameButton: Set<MapleFrameButton>;
-  };
+  buttons: Set<MapleButton>;
   dragableMenus: any[];
   GameCanvas: GameCanvas;
   initialize: (canvas: GameCanvas) => void;
@@ -36,10 +31,7 @@ ClickManager.initialize = function (canvas: GameCanvas) {
   this.clicked = false;
   this.lastClickedPosition = { x: 0, y: 0 };
   this.activeButton = null;
-  this.buttons = {
-    stanceButton: new Set<MapleStanceButton>(),
-    frameButton: new Set<MapleFrameButton>(),
-  };
+  this.buttons = new Set<MapleButton>();
   this.dragableMenus = [];
   this.GameCanvas = canvas;
 };
@@ -51,10 +43,8 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
   const clickedOnThisUpdate = this.GameCanvas.clicked;
   const releasedClick = clickedOnLastUpdate && !clickedOnThisUpdate;
   const lastActiveButton = this.activeButton;
-  const buttons: MapleButton[] = [
-    ...Array.from(this.buttons.stanceButton.values()),
-    ...Array.from(this.buttons.frameButton.values()),
-  ].filter((button) => !button.isHidden);
+  const buttons: MapleButton[] = Array.from(this.buttons.values())
+    .filter((button) => !button.isHidden);
   let currActiveButton = null;
 
   if (buttons.length === 0) {
@@ -74,20 +64,23 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
   // hover event
   if (lastActiveButton !== currActiveButton) {
     this.activeButton = currActiveButton;
-    this.buttons.stanceButton.forEach(
-      (button) => (button.stance = BUTTON_STANCE.NORMAL)
-    );
-    for (const button of this.buttons.stanceButton) {
-      if (this.activeButton === button) {
-        if (button.hoverAudio) {
-          UICommon.playMouseHoverAudio();
+    this.buttons.forEach((button) => {
+      if (button.constructor === MapleStanceButton) {
+        const stanceButton = button as MapleStanceButton;
+        if (typeof stanceButton.stances[BUTTON_STANCE.NORMAL] !== 'undefined') {
+          stanceButton.stance = BUTTON_STANCE.NORMAL;
         }
-        if (typeof button.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined') {
-          button.stance = BUTTON_STANCE.MOUSE_OVER;
+
+        if (this.activeButton === stanceButton) {
+          if (stanceButton.hoverAudio) {
+            UICommon.playMouseHoverAudio();
+          }
+          if (typeof stanceButton.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined') {
+            stanceButton.stance = BUTTON_STANCE.MOUSE_OVER;
+          }
         }
-        break;
       }
-    }
+    });
   }
 
   // click event
@@ -111,8 +104,8 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
           case MapleStanceButton: {
             const stanceButton = button as MapleStanceButton;
             stanceButton.stance = !originallyClickedButton
-              ? (typeof button.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined' ? BUTTON_STANCE.MOUSE_OVER : BUTTON_STANCE.NORMAL)
-              : (typeof button.stances[BUTTON_STANCE.PRESSED] !== 'undefined' ? BUTTON_STANCE.PRESSED : BUTTON_STANCE.NORMAL);
+              ? (typeof stanceButton.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined' ? BUTTON_STANCE.MOUSE_OVER : BUTTON_STANCE.NORMAL)
+              : (typeof stanceButton.stances[BUTTON_STANCE.PRESSED] !== 'undefined' ? BUTTON_STANCE.PRESSED : BUTTON_STANCE.NORMAL);
             break;
           }
           case MapleFrameButton: {
@@ -123,7 +116,7 @@ ClickManager.doUpdate = function (msPerTick: number, camera: CameraInterface) {
         switch (button.constructor) {
           case MapleStanceButton: {
             const stanceButton = button as MapleStanceButton;
-            if (typeof button.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined') {
+            if (typeof stanceButton.stances[BUTTON_STANCE.MOUSE_OVER] !== 'undefined') {
               stanceButton.stance = BUTTON_STANCE.MOUSE_OVER;
             }
             const trigger = releasedClick && originallyClickedButton;
@@ -215,44 +208,16 @@ ClickManager.addDragableMenu = function (menu) {
   this.dragableMenus.push(menu);
 };
 
-ClickManager.addButton = function (button) {
-  switch (button.constructor) {
-    case MapleStanceButton: {
-      this.buttons.stanceButton.add(button);
-      break;
-    }
-    case MapleFrameButton: {
-      this.buttons.frameButton.add(button);
-      break;
-    }
-    default: {
-      throw new Error("Only button is accepted!!");
-    }
-  }
-  if (button.isPartOfUI) {
-    UIMap.clickManagerObjects.add(button);
-  } else {
-    MapleMap.clickManagerObjects.add(button);
-  }
+ClickManager.addButton = function (button: MapleButton) {
+  this.buttons.add(button);
 };
 
-ClickManager.removeButton = function (button) {
-  if (button instanceof MapleStanceButton) {
-    this.buttons.stanceButton.delete(button);
-  } else if (button instanceof MapleFrameButton) {
-    this.buttons.frameButton.delete(button);
-  }
-
-  if (button.isPartOfUI) {
-    UIMap.clickManagerObjects.delete(button);
-  } else {
-    MapleMap.clickManagerObjects.delete(button);
-  }
+ClickManager.removeButton = function (button: MapleButton) {
+  this.buttons.delete(button);
 };
 
 ClickManager.clearButton = function () {
-  this.buttons.stanceButton.clear();
-  this.buttons.frameButton.clear();
+  this.buttons.clear();
 };
 
 export default ClickManager;
