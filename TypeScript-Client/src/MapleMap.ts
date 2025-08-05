@@ -32,7 +32,6 @@ export interface MapleMap {
   npcDialog: UINpcTalk;
   monsters: any;
   itemDrops: any;
-  clickManagerObjects: Set<any>;
   PlayerCharacter: any;
   doneLoading: boolean;
   load: (id: number | string) => Promise<void>;
@@ -103,7 +102,6 @@ MapleMap.load = async function (id: number | string) {
   this.backgrounds = await this.loadBackgrounds(this.wzNode.back);
   this.tiles = await this.loadTiles(this.wzNode);
   this.objects = await this.loadObjects(this.wzNode);
-  this.clickManagerObjects = new Set<any>();
   this.portals = await this.loadPortals(this.wzNode.portal);
   this.names = await this.loadNames(id as number);
   await this.loadNPCs(this.wzNode.life);
@@ -458,10 +456,6 @@ MapleMap.render = function (
 
   this.itemDrops.forEach((drop: DropItemSprite) => {
     drop.draw(canvas, camera);
-  });
-
-  this.clickManagerObjects.forEach((obj: Obj) => {
-    obj.draw(canvas, camera, lag, msPerTick, tdelta);
   });
 
   Object.values(this.footholds).forEach(draw);

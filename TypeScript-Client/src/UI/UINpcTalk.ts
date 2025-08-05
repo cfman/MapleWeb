@@ -6,6 +6,7 @@ import {MapleStanceButton} from './MapleStanceButton';
 import ClickManager from './ClickManager';
 import NpcTalkType from '../Constants/NpcTalkType';
 import {Position} from '../Effects/DamageIndicator';
+import MapleButton from './MapleButton';
 
 /**
  * @todo truncate long name, showing ellipsis
@@ -37,7 +38,7 @@ export default class UINpcTalk {
   bottom: WZNode | null;
   nameTag: WZNode | null;
   speaker: WZNode | undefined;
-  buttons: any[];
+  buttons: MapleButton[];
 
   utilDlgExNode: any = null;
 
@@ -100,6 +101,9 @@ export default class UINpcTalk {
       },
     });
     this.buttons.push(closeButton);
+    this.buttons.forEach((button) => {
+      ClickManager.addButton(button);
+    });
   }
 
   draw(
@@ -127,9 +131,6 @@ export default class UINpcTalk {
         img: this.bottom?.nGetImage(),
         dx: this.x,
         dy: this.y + this.top?.nGetImage().height + this.fillCount * this.fill?.nGetImage().height,
-      });
-      this.buttons.forEach((button) => {
-        ClickManager.addButton(button);
       });
 
       canvas.drawImage({
@@ -162,6 +163,10 @@ export default class UINpcTalk {
         x: this.x + leftPadding + Math.floor(this.nameTag?.nGetImage().width / 2),//canvas.measureText(nameOpts).width,
         y: this.y + this.top?.nGetImage().height + 5 + finalHeight,
         align: 'center'
+      });
+
+      this.buttons.forEach((obj) => {
+        obj.draw(canvas, camera, lag, msPerTick, tdelta);
       });
     }
   }

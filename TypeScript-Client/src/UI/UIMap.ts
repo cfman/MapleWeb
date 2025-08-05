@@ -19,7 +19,7 @@ export interface UIMapInterface {
   graduation: any;
   barGray: any;
   statusBarNode: any;
-  clickManagerObjects: Set<any>;
+  buttons: Set<any>;
   numbers: any;
   initialize: () => Promise<void>;
   addButtons: (canvas: GameCanvas) => void;
@@ -66,7 +66,7 @@ UIMap.initialize = async function () {
 
   this.statusBarNode = statusBar;
 
-  this.clickManagerObjects = new Set<any>();
+  this.buttons = new Set<any>();
 
   this.numbers = statusBar.number.nChildren.reduce(
     (numbers: any, node: any) => {
@@ -98,6 +98,7 @@ UIMap.addButtons = function (canvas) {
     },
   });
   ClickManager.addButton(quickSlot);
+  this.buttons.add(quickSlot);
 
   const keyboardlKey = new MapleStanceButton(canvas, {
     x: 736,
@@ -111,6 +112,7 @@ UIMap.addButtons = function (canvas) {
     },
   });
   ClickManager.addButton(keyboardlKey);
+  this.buttons.add(keyboardlKey);
 
   const skillKey = new MapleStanceButton(canvas, {
     x: 704,
@@ -124,6 +126,7 @@ UIMap.addButtons = function (canvas) {
     },
   });
   ClickManager.addButton(skillKey);
+  this.buttons.add(skillKey);
 
   const invetoryKey = new MapleStanceButton(canvas, {
     x: 672,
@@ -138,6 +141,7 @@ UIMap.addButtons = function (canvas) {
     },
   });
   ClickManager.addButton(invetoryKey);
+  this.buttons.add(invetoryKey);
 
   const equipKey = new MapleStanceButton(canvas, {
     x: 640,
@@ -150,6 +154,7 @@ UIMap.addButtons = function (canvas) {
     },
   });
   ClickManager.addButton(equipKey);
+  this.buttons.add(equipKey);
 };
 
 UIMap.doUpdate = function (msPerTick, camera, canvas) {
@@ -404,7 +409,7 @@ UIMap.doRender = function (canvas, camera, lag, msPerTick, tdelta) {
 
   this.drawNumbers(canvas, hp, maxHp, mp, maxMp, exp, maxExp);
 
-  this.clickManagerObjects.forEach((obj) => {
+  this.buttons.forEach((obj) => {
     obj.draw(canvas, camera, lag, msPerTick, tdelta);
   });
 
