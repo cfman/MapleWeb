@@ -10,6 +10,10 @@ import Camera from '../Camera';
 import WZNode from '../wz-utils/WZNode';
 import FrameAnimation from './FrameAnimation';
 import MapleButton from './MapleButton';
+import LoginPacket from '../Net/Packets/LoginPacket';
+import UILoginNotice, { NoticeType, NoticeMessage } from './UILoginNotice';
+import UILoginTOS from './UILoginTOS';
+import config from '../Config';
 
 interface UILoginInterface {
   uiLogin: WZNode;
@@ -84,6 +88,10 @@ interface UILoginInterface {
   };
   startSelectedWorldSlideIn: () => void;
   stepImage: (stepId: number) => any;
+  uiLoginNotice: UILoginNotice | null;
+  showNotice: (noticeType: NoticeType, noticeMessage: NoticeMessage | null) => void;
+  uiLoginTOS: UILoginTOS | null;
+  showTOS: () => void;
 }
 
 const UILogin = {} as UILoginInterface;
@@ -274,13 +282,26 @@ UILogin.initialize = async function (canvas: GameCanvas) {
     y: -85,
     img: this.uiLogin.nGet('Title').nGet('BtLogin').nChildren,
     onClick: async () => {
-      await LoginState.switchToSubState(LoginSubState.WORLD_SELECT);
-      viewAllCharacterButton.isHidden = false;
-      channelBackButton.isHidden = false;
+      if (config.websocketUrl) { // @todo: remove this check when the login screen is fully implemented
+        new LoginPacket(this.inputUsn?.input.value, this.inputPwd?.input.value).dispatch();
+      } else {
+        await LoginState.switchToSubState(LoginSubState.WORLD_SELECT);
+        viewAllCharacterButton.isHidden = false;
+        channelBackButton.isHidden = false;
+      }
     },
   });
   ClickManager.addButton(loginButton);
   this.behindFrameButtons.push(loginButton);
+
+  this.uiLoginNotice = await UILoginNotice.fromOpts({
+    x: 220,
+    y: 160,
+  });
+  this.uiLoginTOS = await UILoginTOS.fromOpts({
+    x: 195,
+    y: 90,
+  });
 
   /*
   const dice = new MapleFrameButton({
@@ -506,6 +527,9 @@ UILogin.doRender = function (canvas, camera, lag, msPerTick, tdelta) {
 
   this.drawMask(canvas);
 
+  this.uiLoginNotice.draw(canvas, camera, lag, msPerTick, tdelta);
+  this.uiLoginTOS.draw(canvas, camera, lag, msPerTick, tdelta);
+
   UICommon.doRender(canvas, camera, lag, msPerTick, tdelta);
 };
 
@@ -608,5 +632,23 @@ UILogin.stepImage = function (stepId: number) {
   }
   return null;
 };
+
+UILogin.showNotice = function (noticeType: NoticeType, noticeMessage: NoticeMessage | null) {
+  if (!this.uiLoginNotice) {
+    console.error('UILoginNotice is not initialized.');
+    return;
+  }
+  this.uiLoginNotice.setIsHidden(false);
+  this.uiLoginNotice.setNoticeType(noticeType);
+  this.uiLoginNotice.setNoticeMessage(noticeMessage);
+}
+
+UILogin.showTOS = function () {
+  if (!this.uiLoginTOS) {
+    console.error('UILoginTOS is not initialized.');
+    return;
+  }
+  this.uiLoginTOS.setIsHidden(false);
+}
 
 export default UILogin;
