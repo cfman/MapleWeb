@@ -4,6 +4,7 @@ interface Config {
   originalHeight: number;
   originalWidth: number;
   bottomSafeGap: number;
+  websocketUrl?: string;
 }
 
 const originalHeight: number = 600;
@@ -15,6 +16,7 @@ const config: Config = {
   originalHeight,
   originalWidth,
   bottomSafeGap: 0, // 800x600
+  websocketUrl: import.meta.env.VITE_WEBSOCKET_URL,
 };
 
 const element: HTMLElement = document.documentElement; // Get the root element (whole document)

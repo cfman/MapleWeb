@@ -27,3 +27,23 @@ All graphics and sound assets are rights reserved to Nexon. This open source pro
 <img width="297" alt="Screenshot 2024-03-10 at 1 21 12 PM" src="https://github.com/Jeck-Sparrow-5/MapleWeb/assets/162882278/cd6a7e4e-fdcc-4656-ad41-31d9fea35d3c">
 <img width="610" alt="Screenshot 2024-03-10 at 1 18 13 PM" src="https://github.com/Jeck-Sparrow-5/MapleWeb/assets/162882278/d1073c0b-3039-4a04-af78-8c0f97c0fa0c">
   
+## Communication with server
+
+Set the environment variable `VITE_WEBSOCKET_URL` in `.env` to the WebSocket url.
+
+Implementation is still in progress. When the environment variable is not set, it will still work in a local mode for UI development.
+
+### Protocol Converter
+
+As this game is running on a browser, it needs to communicate with the server using WebSocket. While most of the server emulator use TCP sockets, a protocol converter is required for this client to connect to a server.
+
+[websocat](https://github.com/vi/websocat) can be used to convert the TCP socket to a WebSocket connection.
+
+The command to run websocat is as follows, refer to websocat's documentation for more details:
+```bash
+websocat --binary ws-l:127.0.0.1:8089 tcp:127.0.0.1:8484
+```
+
+### Server Emulator (v83)
+
+https://github.com/P0nk/Cosmic

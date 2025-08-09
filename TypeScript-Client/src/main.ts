@@ -4,7 +4,7 @@ import GameLoop from "./Gameloop";
 import Timer from "./Timer";
 import WZManager from "./wz-utils/WZManager";
 import Camera from "./Camera";
-// import MySocket from "./mysocket";
+import SessionManager from "./SessionManager";
 import StateManager from "./StateManager";
 import LoginState from "./LoginState";
 import GameCanvas from "./GameCanvas";
@@ -24,6 +24,9 @@ const startGame = async () => {
     color: "#000000",
   });
   gameWrapper!.style.cursor = "none";
+  if (config.websocketUrl) {
+    await SessionManager.initialize(config.websocketUrl);
+  }
   StateManager.initialize();
   ClickManager.initialize(canvas);
   WZManager.initialize();
